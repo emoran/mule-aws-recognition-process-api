@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<types:mule xmlns:types="http://www.mulesoft.org/schema/mule/types">
+  <types:catalog>
+    <types:type name="json" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+    <types:type name="imageRecordId" format="java">
+      <types:shape format="raml"><![CDATA[#%RAML 1.0 DataType
+type: string]]></types:shape>
+    </types:type>
+  </types:catalog>
+  <types:enrichment select="#7737f63c-4379-4604-acdb-2ee28fb08717">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:message>
+          <types:payload type="json"/>
+        </types:message>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#c6acb2a3-a546-462a-b673-f9aab5b3569f"/>
+  <types:enrichment select="#e7fd1e3b-e295-4c82-8f9a-2de81240ca98">
+    <types:processor-declaration>
+      <types:input-event>
+        <types:variables>
+          <types:variable name="imageRecord" type="imageRecordId"/>
+        </types:variables>
+      </types:input-event>
+    </types:processor-declaration>
+  </types:enrichment>
+  <types:enrichment select="#672332ef-2d0c-448f-b485-742942c7f5f6"/>
+</types:mule>

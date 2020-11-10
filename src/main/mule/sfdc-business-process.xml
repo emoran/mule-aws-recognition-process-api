@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<salesforce:sfdc-config name="sfdc-config" doc:name="Salesforce Config" doc:id="cc557959-9967-49ae-965f-68458327c15b" >
+		<salesforce:basic-connection username="yucelmoran@mulehack2020.com" password="moranmule2020" securityToken="t9xlHlk6bbNqATfoanyUn6Ur" />
+	</salesforce:sfdc-config>
+	<flow name="sfdc-business-processFlow" doc:id="da9e5780-ee5e-434a-8cc0-2e7ce85de315" >
+		<salesforce:query doc:name="Query" doc:id="966bdbd0-7af0-484a-896c-903cdeb8056e" config-ref="sfdc-config">
+			<salesforce:salesforce-query ><![CDATA[select VersionData,ContentLocation, Description, FileExtension, FileType, Id, Origin, Title from ContentVersion where Id = ':contentVersionId']]></salesforce:salesforce-query>
+			<salesforce:parameters ><![CDATA[#[output application/java
+---
+{
+	contentVersionId :payload.contentVersionId
+}]]]></salesforce:parameters>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="e7fd1e3b-e295-4c82-8f9a-2de81240ca98" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import fromBase64 from dw::core::Binaries
+output application/json
+---
+{
+	imageRecordId:vars.imageRecordId,
+	imageName:payload.Title,
+	contentVersionId:payload.Id,
+	image:fromBase64(payload[0].VersionData as String) as Binary default ""
+}
+
+ ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>
