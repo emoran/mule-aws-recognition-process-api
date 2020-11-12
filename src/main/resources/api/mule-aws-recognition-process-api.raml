@@ -11,5 +11,21 @@ title: mule-aws-recognition-process-api
         body:
           application/json:
             example:
+
+/sfdc:
+  /images:
+    get:
+      responses:
+        200:
+          body:
+            application/json:
+  /contentVersion:
+    get:
+      queryParameters:
+        id:
+          description: imageId
+          type: string
+        
+              
               
       

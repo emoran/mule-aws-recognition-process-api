@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:file="http://www.mulesoft.org/schema/mule/file"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
-	<salesforce:sfdc-config name="sfdc-config" doc:name="Salesforce Config" doc:id="cc557959-9967-49ae-965f-68458327c15b" >
-		<salesforce:basic-connection username="yucelmoran@mulehack2020.com" password="moranmule2020" securityToken="t9xlHlk6bbNqATfoanyUn6Ur" />
-	</salesforce:sfdc-config>
-	<flow name="sfdc-business-processFlow" doc:id="da9e5780-ee5e-434a-8cc0-2e7ce85de315" >
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	<flow name="get-content-version-info" doc:id="da9e5780-ee5e-434a-8cc0-2e7ce85de315" >
 		<salesforce:query doc:name="Query" doc:id="966bdbd0-7af0-484a-896c-903cdeb8056e" config-ref="sfdc-config">
 			<salesforce:salesforce-query ><![CDATA[select VersionData,ContentLocation, Description, FileExtension, FileType, Id, Origin, Title from ContentVersion where Id = ':contentVersionId']]></salesforce:salesforce-query>
 			<salesforce:parameters ><![CDATA[#[output application/java
@@ -28,10 +27,76 @@ output application/json
 	imageRecordId:vars.imageRecordId,
 	imageName:payload.Title,
 	contentVersionId:payload.Id,
-	image:fromBase64(payload[0].VersionData as String) as Binary default ""
+	//image:fromBase64(payload[0].VersionData as String) as Binary default ""
+	image:payload[0].VersionData as String
 }
 
  ]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="contentVersionId" ><![CDATA[%dw 2.0
+output application/java
+---
+payload.Id
+]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+	</flow>
+	<flow name="request-to-system-api" doc:id="d01764c4-0db5-4148-9f99-b48d6a21438f" >
+		<http:request method="POST" doc:name="Syatem API Request" doc:id="aa87718c-7227-4b19-b574-428b45312f8a" config-ref="HTTP_Request_configuration" path="image" />
+		<ee:transform doc:name="Transform Message" doc:id="80b76f62-59e8-4b26-8561-d93a5b87070b">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<flow-ref doc:name="update-salesforce-image-labels" doc:id="3927e37a-13a1-41f7-98ca-36f6e6707601" name="update-salesforce-image-labels" />
+	</flow>
+	<flow name="update-salesforce-image-labels" doc:id="290c0687-7e69-4fdb-8f9f-eefba5e4cd52" >
+		<ee:transform doc:name="Transform Message" doc:id="ebf6829f-7010-48da-a77d-f46847a790e5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload map {
+	Accuracy__c: $.confidence,
+	Label__c:$.name,
+	Hackathon_Image__c:vars.originalPayload.imageRecordId,
+	Content_Version__c:vars.contentVersionId
+	
+} ]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:create type="Image_Label__c" doc:name="Create" doc:id="723b4a1e-b283-4315-8aa1-8403f5b416ed" config-ref="sfdc-config"/>
+		<flow-ref doc:name="invoke-apex-rest-class" doc:id="e8b3b1b0-0b0c-4f78-b024-9431e4342a62" name="invoke-apex-rest-class"/>
+	</flow>
+	<flow name="invoke-apex-rest-class" doc:id="b85b6962-9b7c-488e-972b-21adb5ee08f0" >
+		<ee:transform doc:name="Transform Message" doc:id="734807fc-5193-4aa5-a1fe-94128fcc008d" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	imageId:vars.originalPayload.imageRecordId
+	//imageId:"a004x000000jPrrAAE"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<salesforce:invoke-apex-rest-method doc:name="Invoke apex rest method" doc:id="a4e32f14-007c-4b2b-812c-75c00dfb8f06" config-ref="sfdc-config" className="RecordMentions" methodName="postMention^/mentions^HttpPost^String"/>
+		<logger level="INFO" doc:name="Logger" doc:id="854c0473-9646-42c0-9845-b4a381fd87cb" />
+	</flow>
+	<flow name="retrieve-images" doc:id="defea182-27a2-42ec-8626-86aab339921b" >
+		<salesforce:query doc:name="Query Images" doc:id="e5031432-b5d3-4ada-97d4-684e7b3a1567" config-ref="sfdc-config">
+			<salesforce:salesforce-query ><![CDATA[Select Id,Name,(select Accuracy__c, Id, Label__c, Name,Content_Version__c from Image_Labels__r) from Hackathon_Image__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="a2035bf1-eba1-4f0b-a405-7b8b3e121e8a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
 	</flow>

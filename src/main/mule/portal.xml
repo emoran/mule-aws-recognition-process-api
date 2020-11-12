@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<flow name="portalFlow" doc:id="7890667e-662d-4376-891c-b7ad2acedcc6" >
+		<http:listener doc:name="Listener" doc:id="ba08172e-9271-47ff-bbf9-bf8d0753d8ac" config-ref="mule-aws-recognition-process-api-httpListenerConfig" path="/*"/>
+		<http:load-static-resource doc:name="Load static resource" doc:id="95a08bff-4c61-46f7-a16f-1b1d2a12e78c" resourceBasePath="${mule.home}/apps/${app.name}/web/"/>
+	</flow>
+</mule>

@@ -1,0 +1,12 @@
+https:
+  port: "8082"
+
+http:
+  port: "8081"
+  
+environment: "[DEV]"
+
+sfdc:
+  username: "admin@mule.com"
+  password: "![uldYpf5pS0lQi2Bfzr5mgw==]"
+  token: "![QM/cAxtAqLPl844mJpVrkdOPXiinLoaiJ4VlINqyQp0=]"

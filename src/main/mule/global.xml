@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"  xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	<global-property doc:name="Global Property" doc:id="25dee789-afb9-42c5-a473-6ee9557a475c" name="env" value="dev" />
+	<configuration-properties doc:name="Configuration properties" doc:id="9fe80825-2468-4a13-8e4b-9b0a7e5d72a1" file="dev.yaml" />
+	
+	
+	 <http:listener-config name="mule-aws-recognition-process-api-httpListenerConfig">
+        <http:listener-connection host="0.0.0.0" port="${http.port}" />
+    </http:listener-config>
+    <apikit:config name="mule-aws-recognition-process-api-config" api="mule-aws-recognition-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <tls:context name="TLS_Context" doc:name="TLS Context" doc:id="8a798008-521c-48d5-b22e-7ecf640def80">
+        <tls:trust-store path="keystore.jks" password="password" type="jks" insecure="true" />
+        <tls:key-store type="jks" path="keystore.jks" keyPassword="password" password="password" />
+    </tls:context>
+    
+   
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="305e4fbc-084e-4e94-b550-c4337b674934" basePath="/api" >
+		<http:request-connection host="mule-aws-recognition-system-api.us-e2.cloudhub.io" port="80" />
+	</http:request-config>
+	 <salesforce:sfdc-config name="sfdc-config" doc:name="Salesforce Config" doc:id="6d546d5a-b2eb-4ad2-95b3-edacd8801801" >
+		<salesforce:basic-connection username="${sfdc.username}" password="${secure::sfdc.password}" securityToken="${secure::sfdc.token}" />
+	</salesforce:sfdc-config>
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="2c25736a-5955-40fb-82fa-d338bc61479e" file="dev.yaml" key="mulehack2020" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+</mule>
