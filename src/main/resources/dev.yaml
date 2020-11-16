@@ -6,6 +6,10 @@ http:
   
 environment: "[DEV]"
 
+system-api:
+  host: "mule-aws-recognition-system-api.us-e2.cloudhub.io"
+  port: "80"
+
 sfdc:
   username: "admin@mule.com"
   password: "![uldYpf5pS0lQi2Bfzr5mgw==]"

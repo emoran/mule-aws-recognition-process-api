@@ -5,58 +5,76 @@
 	</head>     
 	<body>
 		<div class="slds-scope">
-	   <article class="slds-card">
-		  <div class="slds-card__header slds-grid">
-			<header class="slds-media slds-media_center slds-has-flexi-truncate">
-			  <div class="slds-media__figure">
-				<img src="mule.png" width="20px"/>
-			  </div>
-			  <div class="slds-media__body">
-				<h2 class="slds-card__header-title">
-				  <span>Images</span>
-				</h2>
-			  </div>			     
-			</header>
-		  </div>
-		  <div class="results slds-card__body slds-card__body_inner">
-			
-				
-		  </div>
-		  
-		</article>
+
+			<div class="slds-grid slds-gutters">
+				<div class="slds-col">
+					<article class="slds-card">
+						<div class="slds-card__header slds-grid">
+						<header class="slds-media slds-media_center slds-has-flexi-truncate">
+							<div class="slds-media__figure">
+							<img src="mule.png" width="20px"/>
+							</div>
+							<div class="slds-media__body">
+							<h2 class="slds-card__header-title">
+								<span>Images</span>
+							</h2>
+							</div>			     
+						</header>
+						</div>
+						<div class="results slds-card__body slds-card__body_inner">
+						</div>					
+					</article>
+				</div>
+				<div class="slds-col">
+					<article class="slds-card">
+						<div class="slds-card__header slds-grid">
+						<header class="slds-media slds-media_center slds-has-flexi-truncate">
+							<div class="slds-media__figure">
+							<img src="twitter.png" width="20px"/>
+							</div>
+							<div class="slds-media__body">
+							<h2 class="slds-card__header-title">
+								<span>Tweets</span>
+							</h2>
+							</div>			     
+						</header>
+						</div>
+						<div class="tweets slds-card__body slds-card__body_inner">
+							
+						</div>					
+					</article>
+				</div>
+			</div>
+
+	   	
 		</div>
 	</body>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
-	
-	<script>
-	
+	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>	
+	<script>	
+
+		var labels = [];
 		$(document).ready(function(){ 
-			console.log(' Mulesoft Hackathon 2020 ');
+			console.log(' == Mulesoft Hackathon 2020 == ');
 			getImagesWithLabels();
+			
 		});
 
 		function getImagesWithLabels(){
-			console.log('getting images');
+			
+			var sections = '';
+			
 			$.ajax({
 				type                         : "GET",
-				url                          : "/api/sfdc/images",
-				
+				url                          : "/api/sfdc/images",				
 				contentType                  : "application/json",
 				headers                      : { 
 					'Accept'                 : 'application/json',
 					'Content-Type'           : 'application/json' 
 				},
 				dataType                     : "json",
-				success                      : function (data) {
+				success                      : function (data) {					
 					
-					console.log("Data retrieved: ", JSON.stringify(data));
-					
-					var sections = '';
-
 					$.each(data, function( index, value ) {
-						
-					
-
 						$.ajax({
 							type                         : "GET",
 							url                          : "/api/sfdc/contentVersion?id="+value.Image_Labels__r[0].Content_Version__c+"",							
@@ -66,51 +84,137 @@
 								'Content-Type'           : 'application/json' 
 							},
 							dataType                     : "json",
-							success                      : function (data) {
-								console.log('success content version'+data);
+							success                      : function (data_content) {
 
-								sections +='<div class="demo-only" style="width:30rem">';
-									sections +='	<article class="slds-tile">';
-									sections +='	<h3 class="slds-tile__title slds-truncate" title="Salesforce UX">';
-									sections +='		<a href="javascript:void(0);">'+value.Name+'</a>';
-									sections +='	</h3>';
-									sections += '	<img src="data:image/jpeg;base64,'+data.image+'"/>';
-									sections +='	<div class="slds-tile__detail">';
-									sections +='		<dl class="slds-list_horizontal slds-wrap">';
-										$.each(value.Image_Labels__r, function( indexNested, valueNested ) {
-											sections +='		<dt class="slds-item_label slds-text-color_weak slds-truncate" title="First Label">Label:</dt>';
-											sections +='		<dd class="slds-item_detail slds-truncate" title="Description for first label">'+valueNested.Label__c+'</dd>';
-			
-											sections +='		<dt class="slds-item_label slds-text-color_weak slds-truncate" title="Second Label">Accuracy:</dt>';
-											sections +='		<dd class="slds-item_detail slds-truncate" title="Description for second label">'+valueNested.Accuracy__c+'</dd>';
-										});							
-									sections +='		</dl>';
-									sections +='	</div>';
-									sections +='	</article>';
-									sections +='</div>';
-									sections +='<br/>';
-									$(".results").html(sections);
-						
+								console.log('success content: '+data_content);
+
+								sections +='<article class="slds-card">';
+								sections +='    <div class="slds-card__header slds-grid">';
+								sections +='        <header class="slds-media slds-media_center slds-has-flexi-truncate">';
+								sections +='        <div class="slds-media__figure">';
+								sections +='            <span class="slds-icon_container slds-icon-standard-contact" title="contact">';
+								sections +='            <svg class="slds-icon slds-icon_small" aria-hidden="true">';
+								sections +='                <use xlink:href="/assets/icons/standard-sprite/svg/symbols.svg#contact"></use>';
+								sections +='            </svg>';
+								sections +='            <span class="slds-assistive-text">contact</span>';
+								sections +='            </span>';
+								sections +='        </div>';
+								sections +='        <div class="slds-media__body">';
+								sections +='            <h2 class="slds-card__header-title">';
+								sections +='            <a href="javascript:void(0);" class="slds-card__header-link slds-truncate" title="">';
+								sections +='                <span>'+ value.Name +'</span>';
+								sections +='            </a>';
+								sections +='            </h2>';
+								sections +='        </div>';
+								sections +='        <div class="slds-no-flex">';
+								sections += '			<img src="data:image/jpeg;base64,'+data_content.image+'" width="200px"/>';
+								sections +='        </div>';
+								sections +='        </header>';
+								sections +='    </div>';
+								sections +='    <div class="slds-card__body">';
+								sections +='        <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout" role="grid">';
+								sections +='        <thead>';
+								sections +='            <tr class="slds-line-height_reset">';
+								sections +='            <th class="" scope="col">';
+								sections +='                <div class="slds-truncate" title="Name">Label</div>';
+								sections +='            </th>';
+								sections +='            <th class="" scope="col">';
+								sections +='                <div class="slds-truncate" title="Company">Accuracy</div>';
+								sections +='            </th>';
+								sections +='            </tr>';
+								sections +='        </thead>';
+								sections +='        <tbody>';
+								
+								$.each(value.Image_Labels__r, function( indexNested, valueNested ) {
+									
+									if(valueNested.Accuracy__c > 90){
+										labels.push('%23'+valueNested.Label__c);
+									}
+									
+									sections +='            <tr class="slds-hint-parent">';									
+									sections +='           <td scope="row">';
+									sections +='                <div class="slds-truncate" title="Amy Choi">'+valueNested.Label__c+'</div>';									
+									sections +='            </td>';
+									sections +='            <td role="gridcell">';
+									sections +='                <div class="slds-truncate" title="">'+valueNested.Accuracy__c+'</div>';
+									sections +='            </td>';									
+								sections +='            </tr>';
+								});
+								sections +='        </tbody>';
+								sections +='        </table>';
+								sections +='    </div>';
+								sections +='</article>';
+								sections +='<br/>';
+
+								$(".results").html(sections);	
+								showTweets(labels);
+
 							},
 							error                        : function (e) {						
 							  console.log("ERROR         : ", e);
 							}
-						});
-
-						
-	
+						});						
 					});
 					
-					
-
-				
-					
-					
-
 				},
 				error                        : function (e) {
-
 				  console.log("ERROR         : ", e);
+				}
+			});		
+			
+		}
+
+
+		function showTweets(hashtagsx){
+
+			var queryParam=hashtagsx.join('+');			
+			var urlEndpoint = "/api/tweets?q="+queryParam;
+
+			console.log('URL: '+ urlEndpoint.replace('/\s/g',''));
+			$.ajax({
+				type                         : "GET",
+				url                          : urlEndpoint.replace('/\s/g',''),				
+				contentType                  : "application/json",
+				headers                      : { 
+					'Accept'                 : 'application/json',
+					'Content-Type'           : 'application/json' 
+				},
+				dataType                     : "json",
+				success                      : function (data) {
+
+					sections = '';
+
+					sections +='        <table class="slds-table slds-table_cell-buffer slds-no-row-hover slds-table_bordered slds-table_fixed-layout" role="grid">';
+					sections +='        <thead>';
+					sections +='            <tr class="slds-line-height_reset">';
+					sections +='            <th class="" scope="col">';
+					sections +='                <div class="slds-truncate" title="Name">User</div>';
+					sections +='            </th>';
+					sections +='            <th class="" scope="col">';
+					sections +='                <div class="slds-truncate" title="Company">Tweet</div>';
+					sections +='            </th>';
+					sections +='            </tr>';
+					sections +='        </thead>';
+					sections +='        <tbody>';
+					
+					$.each(data.statuses, function( indexNested, value ) {
+						
+						sections +='            <tr class="slds-hint-parent">';									
+						sections +='           <td scope="row">';
+						sections +='                <div class="slds-truncate" title="Amy Choi">'+value.user.name+'</div>';									
+						sections +='            </td>';
+						sections +='            <td role="gridcell">';
+						sections +='                <div class="slds-truncate" title="">'+value.text+'</div>';
+						sections +='            </td>';									
+					sections +='            </tr>';
+					});
+					sections +='        </tbody>';
+					sections +='        </table>';
+
+					$('.tweets').append(sections);
+				},
+				error : function(error){
+					console.log('error tweet'+error);
 				}
 			});
 		}

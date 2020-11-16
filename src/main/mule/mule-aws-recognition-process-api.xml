@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd  http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
-   
     <flow name="mule-aws-recognition-process-api-main">
         <http:listener config-ref="mule-aws-recognition-process-api-httpListenerConfig" path="/api/*">
             <http:response statusCode="#[vars.httpStatus default 200]">
@@ -144,22 +143,41 @@ output application/java
         </ee:transform>
         <logger level="INFO" doc:name="Logger" doc:id="bc2d68a2-508b-475e-8e20-c19977c6d518" message="IMAGE RECORD: #[payload.imageRecordId] #[payload.contentVersionId] #[payload.contentDocumentLinkId]" />
         <flow-ref doc:name="get-content-version-info" doc:id="9a9b8671-3ad2-4d68-b683-6aad230df7ad" name="get-content-version-info" />
-		<flow-ref doc:name="request-to-system-api" doc:id="9cbf7777-0381-4012-9273-cfc2e346cc44" name="request-to-system-api"/>
+        <flow-ref doc:name="request-to-system-api" doc:id="9cbf7777-0381-4012-9273-cfc2e346cc44" name="request-to-system-api" />
     </flow>
     <flow name="get:\sfdc\images:mule-aws-recognition-process-api-config">
         <flow-ref doc:name="retrieve-images" doc:id="6b16e199-3af7-46c1-a706-8d2a182c28ec" name="retrieve-images" />
     </flow>
     <flow name="get:\sfdc\contentVersion:mule-aws-recognition-process-api-config">
-		<ee:transform doc:name="Transform Message" doc:id="a4eb289f-5639-41b2-8634-30a8c9a38d13" >
-			<ee:message >
-				<ee:set-payload ><![CDATA[%dw 2.0
+        <ee:transform doc:name="Transform Message" doc:id="a4eb289f-5639-41b2-8634-30a8c9a38d13">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
 output application/java
 ---
 {
 	contentVersionId:attributes.queryParams.id
 }]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+        <flow-ref doc:name="get-content-version-info" doc:id="a5c591f2-c9ab-4334-a425-d9ee2583464b" name="get-content-version-info" />
+    </flow>
+	<flow name="get:\tweets:mule-aws-recognition-process-api-config">
+		<ee:transform doc:name="Transform Message" doc:id="c4c25210-8e88-4ba7-b409-722395a16bd3" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+{
+	hashtags:attributes.queryParams.q
+}]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
-		<flow-ref doc:name="get-content-version-info" doc:id="a5c591f2-c9ab-4334-a425-d9ee2583464b" name="get-content-version-info"/>
+		<http:request method="GET" doc:name="Get tweets" doc:id="80777646-0ba7-4ee9-a966-02879ea4f368" config-ref="HTTP_Request_configuration" path="/twitter/tweets">
+			<http:query-params ><![CDATA[#[output application/java
+---
+{
+	q : payload.hashtags
+}]]]></http:query-params>
+		</http:request>
     </flow>
 </mule>

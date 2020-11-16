@@ -18,15 +18,10 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 	 <http:listener-config name="mule-aws-recognition-process-api-httpListenerConfig">
         <http:listener-connection host="0.0.0.0" port="${http.port}" />
     </http:listener-config>
-    <apikit:config name="mule-aws-recognition-process-api-config" api="mule-aws-recognition-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
-    <tls:context name="TLS_Context" doc:name="TLS Context" doc:id="8a798008-521c-48d5-b22e-7ecf640def80">
-        <tls:trust-store path="keystore.jks" password="password" type="jks" insecure="true" />
-        <tls:key-store type="jks" path="keystore.jks" keyPassword="password" password="password" />
-    </tls:context>
-    
+    <apikit:config name="mule-aws-recognition-process-api-config" api="mule-aws-recognition-process-api.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />   
    
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="305e4fbc-084e-4e94-b550-c4337b674934" basePath="/api" >
-		<http:request-connection host="mule-aws-recognition-system-api.us-e2.cloudhub.io" port="80" />
+		<http:request-connection host="${system-api.host}" port="${system-api.port}" />
 	</http:request-config>
 	 <salesforce:sfdc-config name="sfdc-config" doc:name="Salesforce Config" doc:id="6d546d5a-b2eb-4ad2-95b3-edacd8801801" >
 		<salesforce:basic-connection username="${sfdc.username}" password="${secure::sfdc.password}" securityToken="${secure::sfdc.token}" />
